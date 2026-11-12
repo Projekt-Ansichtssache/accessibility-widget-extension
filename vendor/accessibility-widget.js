@@ -11,7 +11,7 @@
     widgetId: "a11y-widget-root",
     textSelectors: "p, li, blockquote, figcaption, td, th",
     adhsPreset: {
-      focusMode: false,
+      focusMode: true,
       readingRuler: true,
       reduceDistractions: true,
       hideDistractions: false,
@@ -75,6 +75,7 @@
     highlightSentence: false,
     grayscale: false,
     readingRuler: false,
+    rulerMovement: "snap",
     readingProgress: false,
     readingMagnifier: false,
     speechRate: 1,
@@ -99,6 +100,16 @@
       if (raw) {
         state = { ...defaults, ...JSON.parse(raw) };
         let migrated = false;
+        const storedRulerHeight = Number(state.rulerHeight);
+        if (!Number.isFinite(storedRulerHeight)) {
+          state.rulerHeight = defaults.rulerHeight;
+          migrated = true;
+        } else if (storedRulerHeight < 60 || storedRulerHeight > 240) {
+          // Older versions allowed very thin bands; a nearly invisible band
+          // combined with the focus mask made the page look blank.
+          state.rulerHeight = Math.min(240, Math.max(60, storedRulerHeight));
+          migrated = true;
+        }
         if (state.profile === "adhs" && state.colorTheme === "soft") {
           state.colorTheme = defaults.colorTheme;
           migrated = true;
@@ -824,7 +835,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
               <details class="profile-disclosure" data-profile-settings="general">
                 <summary>Allgemeine Lesehilfen</summary>
-                <div class="profile-settings-content">
+                <div class="profile-settings-content reading-aids-grid">
               <div class="toggle-row">
                 <span class="toggle-label">Lesefortschritt</span>
                 <button class="toggle" role="switch" aria-checked="${state.readingProgress}" data-toggle="readingProgress" aria-label="Lesefortschritt anzeigen">
@@ -837,6 +848,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
                   <span class="toggle-thumb"></span>
                 </button>
               </div>
+              <div id="reading-time-row" class="info-row"><span>Geschätzte Lesezeit</span><strong id="reading-time">Wird berechnet</strong></div>
 
               <div class="toggle-row">
                 <span class="toggle-label">Leselineal</span>
@@ -844,10 +856,20 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
                   <span class="toggle-thumb"></span>
                 </button>
               </div>
+              <label class="select-row" for="ruler-movement">
+                <span>Bewegung der Leseleiste</span>
+                <select id="ruler-movement" data-setting="rulerMovement" aria-label="Bewegung der Leseleiste">
+                  <option value="snap" ${state.rulerMovement === "snap" ? "selected" : ""}>Zeilenweise einrasten</option>
+                  <option value="pointer" ${state.rulerMovement === "pointer" ? "selected" : ""}>Mauszeiger folgen</option>
+                </select>
+              </label>
 
-              <div class="toggle-row">
-                <span class="toggle-label">Links hervorheben</span>
-                <button class="toggle" role="switch" aria-checked="${state.linkHighlight}" data-toggle="linkHighlight" aria-label="Links hervorheben">
+              <div class="toggle-row link-highlight-setting">
+                <span class="toggle-label">
+                  <span>Links hervorheben</span>
+                  <span class="link-highlight-description" id="link-highlight-description">Unterstreicht Links und hebt sie farblich ab.</span>
+                </span>
+                <button class="toggle" role="switch" aria-checked="${state.linkHighlight}" data-toggle="linkHighlight" aria-label="Links hervorheben" aria-describedby="link-highlight-description">
                   <span class="toggle-thumb"></span>
                 </button>
               </div>
@@ -886,7 +908,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
               <details class="profile-disclosure" data-profile-settings="dyslexie">
                 <summary>Dyslexie-Einstellungen</summary>
-                <div class="profile-settings-content">
+                <div class="profile-settings-content reading-aids-grid">
                   <label class="select-row" for="dyslexie-font">
                     <span>Leseschrift</span>
                     <select id="dyslexie-font" data-setting="readingFont" aria-label="Dyslexie-Leseschrift">
@@ -931,7 +953,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
               <details class="profile-disclosure" data-profile-settings="adhs">
                 <summary>ADHS-Modus</summary>
-                <div class="profile-settings-content">
+                <div class="profile-settings-content reading-aids-grid">
                   <div class="section-label">Orientierung</div>
                   <div class="toggle-row">
                     <span class="toggle-label">Fokusmaske</span>
@@ -998,7 +1020,6 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
               </div>
 
               <div class="section-label">Lesezeit und Fokus-Timer</div>
-              <div id="reading-time-row" class="info-row"><span>Geschätzte Lesezeit</span><strong id="reading-time">Wird berechnet</strong></div>
               <div class="toggle-row">
                 <span class="toggle-label">Fokus-Timer einschalten</span>
                 <button class="toggle" role="switch" aria-checked="${state.pomodoroEnabled}" data-toggle="pomodoroEnabled" aria-label="Fokus-Timer einschalten">
@@ -1080,6 +1101,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         <div class="reading-progress-fill" id="reading-progress-fill"></div>
         <span class="reading-progress-label" id="reading-progress-label">Lesefortschritt 0%</span>
       </div>
+      <div id="focus-mask-overlay" class="focus-mask-overlay" aria-hidden="true"></div>
       <div id="reading-ruler" class="reading-ruler" aria-hidden="true"></div>
       <div id="reading-magnifier" class="reading-magnifier" aria-hidden="true">
         <span class="reading-magnifier-title">Ausschnitt unter dem Zeiger · 2×</span>
@@ -1099,6 +1121,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
     const readingProgress = $("#reading-progress");
     const readingProgressFill = $("#reading-progress-fill");
     const readingProgressLabel = $("#reading-progress-label");
+    const focusMaskOverlay = $("#focus-mask-overlay");
     const readingRuler = $("#reading-ruler");
     const readingMagnifier = $("#reading-magnifier");
     const readingMagnifierViewport = $("#reading-magnifier-viewport");
@@ -1591,10 +1614,23 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
     window.addEventListener("a11y-motion-preference-change", updateDynamicReadingAids);
 
+    function clearReadingBand() {
+      readingRulerHeight = 0;
+      readingRuler.classList.remove("visible");
+      readingRuler.style.removeProperty("height");
+      readingRuler.style.removeProperty("top");
+      focusMaskOverlay.classList.remove("visible");
+      focusMaskOverlay.style.removeProperty("--focus-mask-top");
+      focusMaskOverlay.style.removeProperty("--focus-mask-bottom");
+    }
+
     function updateReadingAids() {
+      const rulerActive = !!state.readingRuler || !!state.focusMode;
+      const hasBand = rulerActive && Number.isFinite(readingRulerHeight) && readingRulerHeight > 0;
       readingProgress.classList.toggle("visible", !!state.readingProgress);
-      readingRuler.classList.toggle("visible", !!state.readingRuler || !!state.focusMode);
-      readingRuler.classList.toggle("focus-mask", !!state.focusMode);
+      readingRuler.classList.toggle("visible", hasBand);
+      focusMaskOverlay.classList.toggle("visible", !!state.focusMode && hasBand);
+      if (!hasBand) clearReadingBand();
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const progress = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
       const percent = Math.round(progress * 100);
@@ -1653,15 +1689,42 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
     }
 
     function positionReadingRuler(x, y) {
+      if (!state.readingRuler && !state.focusMode) {
+        clearReadingBand();
+        return;
+      }
+
       const line = getReadingLineRect(x, y);
       if (!line) return;
 
-      readingRulerHeight = line.height * state.rulerHeight / 100;
-      readingRulerY = line.top + line.height / 2;
+      const viewportHeight = window.innerHeight;
+      const bandHeight = (Number(line.height) || 0) * (Number(state.rulerHeight) || 0) / 100;
+      if (!viewportHeight || !Number.isFinite(bandHeight) || bandHeight <= 0) {
+        clearReadingBand();
+        return;
+      }
+
+      // Never let the band grow beyond the viewport, and keep a visible band
+      // when the focus mask is on. Otherwise the mask would dim the whole page.
+      const minimumBand = state.focusMode ? 16 : 1;
+      readingRulerHeight = Math.min(Math.max(bandHeight, minimumBand), viewportHeight);
+      const centerY = state.rulerMovement === "snap" ? line.top + line.height / 2 : y;
+      readingRulerY = centerY;
       readingRulerX = x;
-      const top = line.top + (line.height - readingRulerHeight) / 2;
+      const top = centerY - readingRulerHeight / 2;
+      const boundedTop = Math.max(0, Math.min(viewportHeight - readingRulerHeight, top));
       readingRuler.style.height = `${readingRulerHeight}px`;
-      readingRuler.style.top = `${Math.max(0, Math.min(window.innerHeight - readingRulerHeight, top))}px`;
+      readingRuler.style.top = `${boundedTop}px`;
+      readingRuler.classList.toggle("visible", !!state.readingRuler || !!state.focusMode);
+      if (state.focusMode) {
+        focusMaskOverlay.style.setProperty("--focus-mask-top", `${boundedTop}px`);
+        focusMaskOverlay.style.setProperty("--focus-mask-bottom", `${boundedTop + readingRulerHeight}px`);
+        focusMaskOverlay.classList.add("visible");
+      } else {
+        focusMaskOverlay.classList.remove("visible");
+        focusMaskOverlay.style.removeProperty("--focus-mask-top");
+        focusMaskOverlay.style.removeProperty("--focus-mask-bottom");
+      }
     }
 
     function stepReadingRuler(event) {
@@ -1739,7 +1802,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       readingMagnifier.classList.add("visible");
     }
 
-    document.addEventListener("mousemove", (event) => {
+    const handlePointerPosition = (event) => {
       pendingPointer = { x: event.clientX, y: event.clientY, target: event.target };
       if (pointerFrame) return;
       pointerFrame = window.requestAnimationFrame(() => {
@@ -1752,7 +1815,9 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         updateReadingTimeScope(pointer.target);
         if (state.readingMagnifier) updateReadingMagnifier(pointer.x, pointer.y);
       });
-    }, { passive: true });
+    };
+    document.addEventListener("pointermove", handlePointerPosition, { passive: true });
+    document.addEventListener("pointerdown", handlePointerPosition, { passive: true });
     document.addEventListener("focusin", (e) => {
       if (!(e.target instanceof Element)) return;
       const bounds = e.target.getBoundingClientRect();
@@ -2147,6 +2212,25 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       .reading-magnifier.visible {
         visibility: visible;
       }
+      .focus-mask-overlay {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.58) 0,
+          rgba(0, 0, 0, 0.58) var(--focus-mask-top, 0px),
+          transparent var(--focus-mask-top, 0px),
+          transparent var(--focus-mask-bottom, 0px),
+          rgba(0, 0, 0, 0.58) var(--focus-mask-bottom, 0px),
+          rgba(0, 0, 0, 0.58) 100%
+        );
+        visibility: hidden;
+        pointer-events: none;
+        z-index: 999996;
+      }
+      .focus-mask-overlay.visible {
+        visibility: visible;
+      }
       .reading-ruler {
         position: fixed;
         left: 0;
@@ -2156,9 +2240,6 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         visibility: hidden;
         pointer-events: none;
         z-index: 999997;
-      }
-      .reading-ruler.focus-mask {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.58);
       }
       .reading-magnifier {
         position: fixed;
@@ -2718,6 +2799,84 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       .profile-settings-content {
         padding: 0 12px 12px;
       }
+      .reading-aids-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 12px;
+        align-items: start;
+      }
+      .reading-aids-grid > .section-label {
+        margin: 8px 0 0;
+      }
+      .reading-aids-grid > .toggle-row,
+      .reading-aids-grid > .select-row {
+        min-width: 0;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 10px;
+        border: 1px solid #e3e8ef;
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+      .reading-aids-grid > .toggle-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-content: space-between;
+        gap: 10px;
+        min-height: 76px;
+      }
+      .reading-aids-grid > .toggle-row .toggle {
+        justify-self: end;
+      }
+      .reading-aids-grid > .link-highlight-setting {
+        grid-column: 1 / -1;
+      }
+      .reading-aids-grid .link-highlight-setting .toggle-label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .reading-aids-grid .toggle-label {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        overflow-wrap: normal;
+        hyphens: auto;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      .link-highlight-description {
+        color: #526173;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.35;
+      }
+      .reading-aids-grid > .section-label,
+      .reading-aids-grid > .range-row,
+      .reading-aids-grid > .action-row,
+      .reading-aids-grid > .inline-status,
+      .reading-aids-grid > .info-row,
+      .reading-aids-grid > .page-outline,
+      .reading-aids-grid > #timer-controls {
+        grid-column: 1 / -1;
+      }
+      .reading-aids-grid > .select-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+      }
+      .reading-aids-grid > .select-row span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .reading-aids-grid > .select-row select {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        box-sizing: border-box;
+      }
 
       @media (max-width: 420px) {
         .profile-grid,
@@ -2729,6 +2888,11 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         }
         .panel-header {
           padding: 12px;
+        }
+      }
+      @media (max-width: 360px) {
+        .reading-aids-grid {
+          grid-template-columns: minmax(0, 1fr);
         }
       }
     `;
