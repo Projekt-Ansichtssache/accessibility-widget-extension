@@ -4,6 +4,16 @@
   "description": "__MSG_extensionDescription__",
   "version": "1.0.0",
   "default_locale": "de",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{9f1d8f3e-7b6c-4c7a-9c2a-0b4d6e8f1a23}",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
   "icons": {
     "16": "assets/icons/icon-16.png",
     "32": "assets/icons/icon-32.png",
