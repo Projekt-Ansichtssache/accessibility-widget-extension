@@ -1,0 +1,92 @@
+{
+  "extensionName": {
+    "message": "Accessibility Widget"
+  },
+  "extensionDescription": {
+    "message": "Accessibility tools for every website."
+  },
+  "optionsTitle": {
+    "message": "Accessibility Widget Settings"
+  },
+  "optionsIntro": {
+    "message": "Manage the global activation and websites where the widget should not be displayed."
+  },
+  "statusLoading": {
+    "message": "Loading status …"
+  },
+  "globalEnabled": {
+    "message": "Widget active everywhere"
+  },
+  "globalDescription": {
+    "message": "When disabled, the widget is not shown on any website."
+  },
+  "statusGlobalDisabled": {
+    "message": "Widget globally disabled"
+  },
+  "statusWebsiteDisabled": {
+    "message": "Disabled on this website"
+  },
+  "statusWebsiteEnabled": {
+    "message": "Enabled on this website"
+  },
+  "blacklistWebsite": {
+    "message": "Blacklist website"
+  },
+  "whitelistWebsite": {
+    "message": "Whitelist website"
+  },
+  "viewList": {
+    "message": "View list"
+  },
+  "noWebsite": {
+    "message": "No website selected"
+  },
+  "unsupportedPage": {
+    "message": "Not available for this page"
+  },
+  "statusUnavailable": {
+    "message": "Status unavailable"
+  },
+  "statusLoadError": {
+    "message": "The status could not be loaded."
+  },
+  "blacklistTitle": {
+    "message": "Blacklisted websites"
+  },
+  "blacklistDescription": {
+    "message": "The widget is not loaded on these domains."
+  },
+  "emptyBlacklist": {
+    "message": "No blacklisted websites."
+  },
+  "settingsLoadError": {
+    "message": "Settings could not be loaded."
+  },
+  "settingApplyError": {
+    "message": "The setting could not be applied."
+  },
+  "whitelistError": {
+    "message": "The website could not be whitelisted."
+  },
+  "creditShort": {
+    "message": "Developed with ❤ by"
+  },
+  "creditDeveloped": {
+    "message": "Developed with ❤ by"
+  },
+  "extensionSettingsReadError": {
+    "message": "The settings could not be read."
+  },
+  "domainStateReadError": {
+    "message": "The status could not be read."
+  },
+  "unsupportedPageError": {
+    "message": "This page is not supported."
+  },
+  "invalidGlobalState": {
+    "message": "Invalid global state."
+  },
+  "globalSettingApplyError": {
+    "message": "The global setting could not be applied."
+  }
+}

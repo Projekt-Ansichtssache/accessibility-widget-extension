@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="extensionName"></title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <h1 data-i18n="extensionName"></h1>
+      <p id="domain" class="domain"></p>
+      <p id="status" class="status" role="status" data-i18n="statusLoading"></p>
+      <label class="switch-row global-row">
+        <span data-i18n="globalEnabled"></span>
+        <input id="global-enabled" type="checkbox" role="switch" disabled>
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+      <div class="website-actions">
+        <button id="site-toggle" class="secondary-button" type="button" disabled>
+          <span data-i18n="blacklistWebsite"></span>
+        </button>
+        <button id="view-list" class="secondary-button" type="button">
+          <span data-i18n="viewList"></span>
+        </button>
+      </div>
+      <p id="error" class="error" role="alert" hidden></p>
+      <footer class="credit">
+        <span data-i18n="creditShort"></span>
+        <a href="https://github.com/Projekt-Ansichtssache" target="_blank" rel="noopener noreferrer">Projekt Ansichtssache</a>
+      </footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

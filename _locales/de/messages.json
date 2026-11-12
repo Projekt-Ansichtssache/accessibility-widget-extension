@@ -1,0 +1,92 @@
+{
+  "extensionName": {
+    "message": "Accessibility Widget"
+  },
+  "extensionDescription": {
+    "message": "Barrierefreiheitswerkzeuge für jede Website."
+  },
+  "optionsTitle": {
+    "message": "Accessibility Widget Einstellungen"
+  },
+  "optionsIntro": {
+    "message": "Verwalte die globale Aktivierung und Websites, auf denen das Widget nicht angezeigt werden soll."
+  },
+  "statusLoading": {
+    "message": "Status wird geladen …"
+  },
+  "globalEnabled": {
+    "message": "Widget überall aktiv"
+  },
+  "globalDescription": {
+    "message": "Wenn deaktiviert, wird das Widget auf keiner Website angezeigt."
+  },
+  "statusGlobalDisabled": {
+    "message": "Widget global deaktiviert"
+  },
+  "statusWebsiteDisabled": {
+    "message": "Auf dieser Website deaktiviert"
+  },
+  "statusWebsiteEnabled": {
+    "message": "Auf dieser Website aktiviert"
+  },
+  "blacklistWebsite": {
+    "message": "Website blacklisten"
+  },
+  "whitelistWebsite": {
+    "message": "Website whitelisten"
+  },
+  "viewList": {
+    "message": "Liste anzeigen"
+  },
+  "noWebsite": {
+    "message": "Keine Website ausgewählt"
+  },
+  "unsupportedPage": {
+    "message": "Für diese Seite nicht verfügbar"
+  },
+  "statusUnavailable": {
+    "message": "Status nicht verfügbar"
+  },
+  "statusLoadError": {
+    "message": "Der Status konnte nicht geladen werden."
+  },
+  "blacklistTitle": {
+    "message": "Blacklist-Websites"
+  },
+  "blacklistDescription": {
+    "message": "Auf diesen Domains wird das Widget nicht geladen."
+  },
+  "emptyBlacklist": {
+    "message": "Keine Websites auf der Blacklist."
+  },
+  "settingsLoadError": {
+    "message": "Einstellungen konnten nicht geladen werden."
+  },
+  "settingApplyError": {
+    "message": "Die Einstellung konnte nicht angewendet werden."
+  },
+  "whitelistError": {
+    "message": "Die Website konnte nicht whitelisted werden."
+  },
+  "creditShort": {
+    "message": "Developed with ❤ by"
+  },
+  "creditDeveloped": {
+    "message": "Developed with ❤ by"
+  },
+  "extensionSettingsReadError": {
+    "message": "Die Einstellungen konnten nicht gelesen werden."
+  },
+  "domainStateReadError": {
+    "message": "Der Status konnte nicht gelesen werden."
+  },
+  "unsupportedPageError": {
+    "message": "Diese Seite wird nicht unterstützt."
+  },
+  "invalidGlobalState": {
+    "message": "Ungültiger globaler Status."
+  },
+  "globalSettingApplyError": {
+    "message": "Die globale Einstellung konnte nicht angewendet werden."
+  }
+}

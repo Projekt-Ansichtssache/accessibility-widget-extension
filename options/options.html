@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="optionsTitle"></title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="settings">
+      <h1 data-i18n="extensionName"></h1>
+      <p class="intro" data-i18n="optionsIntro"></p>
+
+      <section class="card">
+        <label class="switch-row">
+          <span>
+            <strong data-i18n="globalEnabled"></strong>
+            <small data-i18n="globalDescription"></small>
+          </span>
+          <input id="global-enabled" type="checkbox" role="switch" disabled>
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="blacklistTitle"></h2>
+        <p class="section-description" data-i18n="blacklistDescription"></p>
+        <p id="empty-message" class="empty-message" data-i18n="emptyBlacklist" hidden></p>
+        <ul id="domain-list" class="domain-list"></ul>
+      </section>
+
+      <p id="error" class="error" role="alert" hidden></p>
+      <footer class="credit">
+        <span data-i18n="creditDeveloped"></span>
+        <a href="https://github.com/Projekt-Ansichtssache" target="_blank" rel="noopener noreferrer">Projekt Ansichtssache</a>
+      </footer>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
