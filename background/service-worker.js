@@ -5,9 +5,10 @@ const BLACKLISTED_DOMAINS_KEY = "blacklistedDomains";
 const LEGACY_DISABLED_DOMAINS_KEY = "disabledDomains";
 const VENDOR_SCRIPT = "vendor/accessibility-widget.js";
 const injectionsInProgress = new Set();
+const extensionApi = globalThis.browser || globalThis.chrome;
 
-function message(key) {
-  return chrome.i18n.getMessage(key);
+function i18nMessage(key) {
+  return extensionApi.i18n.getMessage(key);
 }
 
 function getDomain(url) {
@@ -23,7 +24,7 @@ function getDomain(url) {
 }
 
 async function getSettings() {
-  const stored = await chrome.storage.local.get({
+  const stored = await extensionApi.storage.local.get({
     [GLOBAL_ENABLED_KEY]: true,
     [BLACKLISTED_DOMAINS_KEY]: null,
     [LEGACY_DISABLED_DOMAINS_KEY]: [],
@@ -50,14 +51,14 @@ function getDomainFromMessage(message) {
 }
 
 async function reloadMatchingTabs(domain = null) {
-  const tabs = await chrome.tabs.query({});
+  const tabs = await extensionApi.tabs.query({});
   const matchingTabs = tabs.filter((tab) => {
     if (tab.id === undefined || !getDomain(tab.url || "")) return false;
     return domain === null || getDomain(tab.url) === domain;
   });
   await Promise.all(
     matchingTabs.map((tab) =>
-      chrome.tabs.reload(tab.id).catch((error) => {
+      extensionApi.tabs.reload(tab.id).catch((error) => {
         console.warn(`Could not reload tab ${tab.id}.`, error);
       })
     )
@@ -71,7 +72,7 @@ async function injectWidget(tabId, url) {
 
   injectionsInProgress.add(tabId);
   try {
-    const [{ result: alreadyLoaded }] = await chrome.scripting.executeScript({
+    const [{ result: alreadyLoaded }] = await extensionApi.scripting.executeScript({
       target: {
         tabId,
         allFrames: false,
@@ -80,7 +81,7 @@ async function injectWidget(tabId, url) {
     });
     if (alreadyLoaded) return;
 
-    await chrome.scripting.executeScript({
+    await extensionApi.scripting.executeScript({
       target: {
         tabId,
         allFrames: false,
@@ -94,20 +95,20 @@ async function injectWidget(tabId, url) {
   }
 }
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+extensionApi.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete" && tab.url) {
     void injectWidget(tabId, tab.url);
   }
 });
 
-chrome.runtime.onInstalled.addListener(() => {
+extensionApi.runtime.onInstalled.addListener(() => {
   reloadMatchingTabs()
     .catch((error) => {
       console.warn("Accessibility Widget could not initialize open tabs.", error);
     });
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+extensionApi.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "get-settings") {
     getSettings()
       .then((settings) => sendResponse({ ok: true, ...settings }))
@@ -115,7 +116,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         console.error("Could not read the extension settings.", error);
         sendResponse({
           ok: false,
-          error: message("extensionSettingsReadError"),
+          error: i18nMessage("extensionSettingsReadError"),
         });
       });
     return true;
@@ -140,7 +141,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         console.error("Could not read the domain state.", error);
         sendResponse({
           supported: true,
-          error: message("domainStateReadError"),
+          error: i18nMessage("domainStateReadError"),
         });
       });
     return true;
@@ -151,7 +152,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (!domain || typeof message.blacklisted !== "boolean") {
       sendResponse({
         ok: false,
-        error: message("unsupportedPageError"),
+        error: i18nMessage("unsupportedPageError"),
       });
       return;
     }
@@ -161,7 +162,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const blacklistedDomains = new Set(settings.blacklistedDomains);
         if (message.blacklisted) blacklistedDomains.add(domain);
         else blacklistedDomains.delete(domain);
-        return chrome.storage.local.set({
+        return extensionApi.storage.local.set({
           [BLACKLISTED_DOMAINS_KEY]: [...blacklistedDomains],
         });
       })
@@ -171,7 +172,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         console.error("Could not update the domain state.", error);
         sendResponse({
           ok: false,
-          error: message("settingApplyError"),
+          error: i18nMessage("settingApplyError"),
         });
       });
     return true;
@@ -181,12 +182,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (typeof message.enabled !== "boolean") {
       sendResponse({
         ok: false,
-        error: message("invalidGlobalState"),
+        error: i18nMessage("invalidGlobalState"),
       });
       return;
     }
 
-    chrome.storage.local
+    extensionApi.storage.local
       .set({ [GLOBAL_ENABLED_KEY]: message.enabled })
       .then(() => reloadMatchingTabs())
       .then(() => sendResponse({ ok: true, enabled: message.enabled }))
@@ -194,7 +195,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         console.error("Could not update the global state.", error);
         sendResponse({
           ok: false,
-          error: message("globalSettingApplyError"),
+          error: i18nMessage("globalSettingApplyError"),
         });
       });
     return true;

@@ -6,19 +6,20 @@ const globalEnabledElement = document.getElementById("global-enabled");
 const siteToggleElement = document.getElementById("site-toggle");
 const viewListElement = document.getElementById("view-list");
 const errorElement = document.getElementById("error");
+const extensionApi = globalThis.browser || globalThis.chrome;
 
 let activeTab = null;
 let currentBlacklisted = false;
 
-function message(key) {
-  return chrome.i18n.getMessage(key);
+function i18nMessage(key) {
+  return extensionApi.i18n.getMessage(key);
 }
 
 function translatePage() {
-  const locale = chrome.i18n.getUILanguage().toLowerCase();
+  const locale = extensionApi.i18n.getUILanguage().toLowerCase();
   document.documentElement.lang = locale.startsWith("de") ? "de" : "en";
   document.querySelectorAll("[data-i18n]").forEach((element) => {
-    element.textContent = message(element.dataset.i18n);
+    element.textContent = i18nMessage(element.dataset.i18n);
   });
 }
 
@@ -30,20 +31,20 @@ function setError(message) {
 function setStatus(globalEnabled, blacklisted) {
   currentBlacklisted = blacklisted;
   if (!globalEnabled) {
-    statusElement.textContent = message("statusGlobalDisabled");
+    statusElement.textContent = i18nMessage("statusGlobalDisabled");
   } else {
     statusElement.textContent = blacklisted
-      ? message("statusWebsiteDisabled")
-      : message("statusWebsiteEnabled");
+      ? i18nMessage("statusWebsiteDisabled")
+      : i18nMessage("statusWebsiteEnabled");
   }
   statusElement.classList.toggle("is-disabled", !globalEnabled || blacklisted);
   siteToggleElement.textContent = blacklisted
-    ? message("whitelistWebsite")
-    : message("blacklistWebsite");
+    ? i18nMessage("whitelistWebsite")
+    : i18nMessage("blacklistWebsite");
 }
 
 async function getActiveTab() {
-  const tabs = await chrome.tabs.query({
+  const tabs = await extensionApi.tabs.query({
     active: true,
     currentWindow: true,
   });
@@ -54,14 +55,14 @@ async function loadState() {
   try {
     activeTab = await getActiveTab();
     const url = activeTab?.url || "";
-    domainElement.textContent = url ? new URL(url).hostname : message("noWebsite");
+    domainElement.textContent = url ? new URL(url).hostname : i18nMessage("noWebsite");
 
-    const state = await chrome.runtime.sendMessage({
+    const state = await extensionApi.runtime.sendMessage({
       type: "get-domain-state",
       url,
     });
     if (!state?.supported) {
-      statusElement.textContent = message("unsupportedPage");
+      statusElement.textContent = i18nMessage("unsupportedPage");
       globalEnabledElement.disabled = true;
       siteToggleElement.disabled = true;
       return;
@@ -74,10 +75,10 @@ async function loadState() {
     setError(state.error || "");
   } catch (error) {
     console.error("Could not load the domain state.", error);
-    statusElement.textContent = message("statusUnavailable");
+    statusElement.textContent = i18nMessage("statusUnavailable");
     globalEnabledElement.disabled = true;
     siteToggleElement.disabled = true;
-    setError(message("statusLoadError"));
+    setError(i18nMessage("statusLoadError"));
   }
 }
 
@@ -85,12 +86,12 @@ globalEnabledElement.addEventListener("change", async () => {
   globalEnabledElement.disabled = true;
   setError("");
   try {
-    const result = await chrome.runtime.sendMessage({
+    const result = await extensionApi.runtime.sendMessage({
       type: "set-global-state",
       enabled: globalEnabledElement.checked,
     });
     if (!result?.ok) {
-      throw new Error(result?.error || message("settingApplyError"));
+      throw new Error(result?.error || i18nMessage("settingApplyError"));
     }
     setStatus(result.enabled, currentBlacklisted);
   } catch (error) {
@@ -108,13 +109,13 @@ siteToggleElement.addEventListener("click", async () => {
   siteToggleElement.disabled = true;
   setError("");
   try {
-    const result = await chrome.runtime.sendMessage({
+    const result = await extensionApi.runtime.sendMessage({
       type: "set-domain-state",
       url: activeTab.url,
       blacklisted: !currentBlacklisted,
     });
     if (!result?.ok) {
-      throw new Error(result?.error || message("settingApplyError"));
+      throw new Error(result?.error || i18nMessage("settingApplyError"));
     }
     setStatus(globalEnabledElement.checked, result.blacklisted);
   } catch (error) {
@@ -126,7 +127,7 @@ siteToggleElement.addEventListener("click", async () => {
 });
 
 viewListElement.addEventListener("click", () => {
-  void chrome.runtime.openOptionsPage();
+  void extensionApi.runtime.openOptionsPage();
 });
 
 translatePage();

@@ -4,16 +4,17 @@ const globalEnabledElement = document.getElementById("global-enabled");
 const domainListElement = document.getElementById("domain-list");
 const emptyMessageElement = document.getElementById("empty-message");
 const errorElement = document.getElementById("error");
+const extensionApi = globalThis.browser || globalThis.chrome;
 
-function message(key) {
-  return chrome.i18n.getMessage(key);
+function i18nMessage(key) {
+  return extensionApi.i18n.getMessage(key);
 }
 
 function translatePage() {
-  const locale = chrome.i18n.getUILanguage().toLowerCase();
+  const locale = extensionApi.i18n.getUILanguage().toLowerCase();
   document.documentElement.lang = locale.startsWith("de") ? "de" : "en";
   document.querySelectorAll("[data-i18n]").forEach((element) => {
-    element.textContent = message(element.dataset.i18n);
+    element.textContent = i18nMessage(element.dataset.i18n);
   });
 }
 
@@ -37,7 +38,7 @@ function renderDomains(domains) {
     const removeButton = document.createElement("button");
     removeButton.className = "remove-button";
     removeButton.type = "button";
-    removeButton.textContent = message("whitelistWebsite");
+    removeButton.textContent = i18nMessage("whitelistWebsite");
     removeButton.addEventListener("click", () => {
       void removeDomain(domain, removeButton);
     });
@@ -49,8 +50,8 @@ function renderDomains(domains) {
 
 async function loadSettings() {
   try {
-    const settings = await chrome.runtime.sendMessage({ type: "get-settings" });
-    if (!settings?.ok) throw new Error(settings?.error || message("settingsLoadError"));
+    const settings = await extensionApi.runtime.sendMessage({ type: "get-settings" });
+    if (!settings?.ok) throw new Error(settings?.error || i18nMessage("settingsLoadError"));
     globalEnabledElement.checked = settings.globalEnabled;
     globalEnabledElement.disabled = false;
     renderDomains(settings.blacklistedDomains);
@@ -64,11 +65,11 @@ globalEnabledElement.addEventListener("change", async () => {
   globalEnabledElement.disabled = true;
   setError("");
   try {
-    const result = await chrome.runtime.sendMessage({
+    const result = await extensionApi.runtime.sendMessage({
       type: "set-global-state",
       enabled: globalEnabledElement.checked,
     });
-    if (!result?.ok) throw new Error(result?.error || message("settingApplyError"));
+    if (!result?.ok) throw new Error(result?.error || i18nMessage("settingApplyError"));
   } catch (error) {
     console.error("Could not update global state.", error);
     globalEnabledElement.checked = !globalEnabledElement.checked;
@@ -82,12 +83,12 @@ async function removeDomain(domain, button) {
   button.disabled = true;
   setError("");
   try {
-    const result = await chrome.runtime.sendMessage({
+    const result = await extensionApi.runtime.sendMessage({
       type: "set-domain-state",
       domain,
       blacklisted: false,
     });
-    if (!result?.ok) throw new Error(result?.error || message("whitelistError"));
+    if (!result?.ok) throw new Error(result?.error || i18nMessage("whitelistError"));
     await loadSettings();
   } catch (error) {
     console.error("Could not remove blacklisted domain.", error);
