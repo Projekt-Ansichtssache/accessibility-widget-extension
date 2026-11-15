@@ -1,5 +1,7 @@
 # Accessibility Widget Extension
 
+[Chrome Web Store](https://chromewebstore.google.com/detail/kffkafdmlcmmiefggbniofjmlkoiplkm?utm_source=item-share-cb), [Firefox Browser Add-Ons](https://addons.mozilla.org/de/firefox/addon/accessibility-widget-by-p-a/)
+
 Browser extension for providing accessibility tools on HTTP and HTTPS websites.
 
 ## Features
