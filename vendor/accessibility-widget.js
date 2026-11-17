@@ -10,8 +10,18 @@
     storageKey: "a11y-widget-state",
     widgetId: "a11y-widget-root",
     textSelectors: "p, li, blockquote, figcaption, td, th",
+    visionPreset: {
+      textSize: 130,
+      lineHeight: 130,
+      letterSpacing: 105,
+      contrast: "high",
+      linkHighlight: true,
+      headingHighlight: true,
+      readingFont: "atkinson",
+      constrainLineWidth: true,
+    },
     adhsPreset: {
-      focusMode: false,
+      focusMode: true,
       readingRuler: true,
       reduceDistractions: true,
       hideDistractions: false,
@@ -54,8 +64,207 @@
   const motionPausedVideos = new Map();
   let mediaObserver = null;
 
+  const translations = {
+    en: {
+      "Barrierefreiheits-Einstellungen öffnen": "Open accessibility settings",
+      "Barrierefreiheits-Einstellungen schließen": "Close accessibility settings",
+      "Barrierefreiheits-Einstellungen": "Accessibility settings",
+      "Barrierefreiheits-Widget": "Accessibility widget",
+      "Einstellungen": "Settings",
+      "Panel schließen": "Close panel",
+      "Schließen": "Close",
+      "Einstellungs-Kategorien": "Settings categories",
+      "Profile": "Profiles",
+      "Darstellung": "Display",
+      "Lesehilfen": "Reading aids",
+      "Vorlagen": "Presets",
+      "Sprache": "Language",
+      "Automatisch": "Automatic",
+      "Deutsch": "German",
+      "English": "English",
+      "Sehbehinderung": "Visual impairment",
+      "Profil Sehbehinderung aktivieren": "Enable visual impairment profile",
+      "Dyslexie": "Dyslexia",
+      "Profil Dyslexie aktivieren": "Enable dyslexia profile",
+      "ADHS-Modus": "ADHD mode",
+      "ADHS-Modus aktivieren": "Enable ADHD mode",
+      "Motorik": "Motor skills",
+      "Profil Motorik aktivieren": "Enable motor skills profile",
+      "Kognitiv": "Cognitive",
+      "Profil Kognitiv aktivieren": "Enable cognitive profile",
+      "Epilepsie": "Epilepsy",
+      "Profil Epilepsie aktivieren": "Enable epilepsy profile",
+      "Kontrast": "Contrast",
+      "Normal": "Normal",
+      "Dunkel": "Dark",
+      "Hell": "Light",
+      "Hoher Kontrast": "High contrast",
+      "Textgröße": "Text size",
+      "Textgröße verkleinern": "Decrease text size",
+      "Textgröße vergrößern": "Increase text size",
+      "Textgröße zurücksetzen": "Reset text size",
+      "Zurücksetzen": "Reset",
+      "Zeilenabstand": "Line height",
+      "Zeilenabstand verkleinern": "Decrease line height",
+      "Zeilenabstand vergrößern": "Increase line height",
+      "Zeilenabstand zurücksetzen": "Reset line height",
+      "Buchstabenabstand": "Letter spacing",
+      "Buchstabenabstand verkleinern": "Decrease letter spacing",
+      "Buchstabenabstand vergrößern": "Increase letter spacing",
+      "Buchstabenabstand zurücksetzen": "Reset letter spacing",
+      "Textausrichtung": "Text alignment",
+      "Standard": "Default",
+      "Links": "Left",
+      "Zentriert": "Centered",
+      "Allgemeine Lesehilfen": "General reading aids",
+      "Lesefortschritt": "Reading progress",
+      "Lesefortschritt anzeigen": "Show reading progress",
+      "Lesezeit anzeigen": "Show reading time",
+      "Geschätzte Lesezeit anzeigen": "Show estimated reading time",
+      "Geschätzte Lesezeit": "Estimated reading time",
+      "Wird berechnet": "Calculating",
+      "Leselineal": "Reading ruler",
+      "Leselineal aktivieren": "Enable reading ruler",
+      "Bewegung der Leseleiste": "Reading ruler movement",
+      "Zeilenweise einrasten": "Snap to lines",
+      "Mauszeiger folgen": "Follow pointer",
+      "Links hervorheben": "Highlight links",
+      "Hebt Links farblich und durch eine stärkere Schrift hervor.": "Highlights links with color and stronger text.",
+      "Überschriften markieren": "Mark headings",
+      "Überschriften hervorheben": "Highlight headings",
+      "Graustufen": "Grayscale",
+      "Graustufen aktivieren": "Enable grayscale",
+      "Leselupe": "Reading magnifier",
+      "Leselupe aktivieren": "Enable reading magnifier",
+      "Vorlesen": "Read aloud",
+      "Markierten Text oder Abschnitt vorlesen": "Read aloud selected text or section",
+      "Vorlesen pausieren": "Pause reading",
+      "Pause": "Pause",
+      "Vorlesen beenden": "Stop reading",
+      "Stopp": "Stop",
+      "Sprechtempo": "Speech rate",
+      "Schriftgröße": "Font size",
+      "Schriftgröße für Sehbehinderung": "Font size for visual impairment",
+      "Zeilenabstand für Sehbehinderung": "Line height for visual impairment",
+      "Buchstabenabstand für Sehbehinderung": "Letter spacing for visual impairment",
+      "Leseschrift": "Reading font",
+      "Leseschrift für Sehbehinderung": "Reading font for visual impairment",
+      "Dyslexie-Leseschrift": "Dyslexia reading font",
+      "System": "System",
+      "Wortabstand": "Word spacing",
+      "Lange Textzeilen begrenzen": "Limit long text lines",
+      "Hintergrundfarbe": "Background color",
+      "Creme": "Cream",
+      "Hellblau": "Light blue",
+      "Dyslexie-Einstellungen": "Dyslexia settings",
+      "Orientierung": "Orientation",
+      "Fokusmaske": "Focus mask",
+      "Fokusmaske aktivieren": "Enable focus mask",
+      "Höhe der Lesemaske": "Focus mask height",
+      "Ablenkungen": "Distractions",
+      "Animationen und Autoplay stoppen": "Stop animations and autoplay",
+      "Banner und Seitenleisten ausblenden": "Hide banners and sidebars",
+      "Lesen": "Reading",
+      "Bionic Reading": "Bionic Reading",
+      "Bionic Reading aktivieren": "Enable Bionic Reading",
+      "Textbreite auf 60 Zeichen begrenzen": "Limit text width to 60 characters",
+      "Textbreite begrenzen": "Limit text width",
+      "Aktuellen Absatz hervorheben": "Highlight current paragraph",
+      "Satz beim Vorlesen hervorheben": "Highlight sentence while reading",
+      "Satz hervorheben": "Highlight sentence",
+      "Lesezeit und Fokus-Timer": "Reading time and focus timer",
+      "Fokus-Timer einschalten": "Enable focus timer",
+      "Fokus (Min.)": "Focus (min)",
+      "Pause (Min.)": "Break (min)",
+      "Fokusdauer in Minuten": "Focus duration in minutes",
+      "Pausendauer in Minuten": "Break duration in minutes",
+      "Start": "Start",
+      "Zurücksetzen": "Reset",
+      "Hinweis schließen": "Close notice",
+      "Sanften Ton am Timerende": "Play a gentle sound when timer ends",
+      "Timer-Ton aktivieren": "Enable timer sound",
+      "Kurzfassung und Struktur": "Summary and structure",
+      "Inhaltsverzeichnis anzeigen": "Show table of contents",
+      "Lange Absätze einklappbar machen": "Make long paragraphs collapsible",
+      "Ruhige Darstellung": "Calm appearance",
+      "Farbschema": "Color scheme",
+      "Gedämpft": "Muted",
+      "Sepia": "Sepia",
+      "Farbsättigung reduzieren": "Reduce color saturation",
+      "Hinweise dezent anzeigen": "Show notices discreetly",
+      "Dezente Hinweise aktivieren": "Enable discreet notices",
+      "Alles zurücksetzen": "Reset everything",
+      "Ausschnitt unter dem Zeiger · 2×": "Section beneath pointer · 2×",
+      "Lesefortschritt 0%": "Reading progress 0%",
+      "Lesefortschritt ${percent}%": "Reading progress ${percent}%",
+      "Gespeichert": "Saved",
+      "Speichern nicht möglich": "Unable to save",
+      "Vorlesen wird von diesem Browser nicht unterstützt.": "Reading aloud is not supported by this browser.",
+      "Vorlesen fortgesetzt.": "Reading resumed.",
+      "Kein lesbarer Text gefunden.": "No readable text found.",
+      "Vorlesen beendet.": "Reading finished.",
+      "Vorlesen konnte nicht gestartet werden.": "Reading could not be started.",
+      "Vorlesen läuft.": "Reading is in progress.",
+      "Vorlesen pausiert.": "Reading paused.",
+      "Vorlesen gestoppt.": "Reading stopped.",
+      "Fokuszeit beendet. Zeit für eine Pause.": "Focus time finished. Time for a break.",
+      "Pause beendet. Du kannst weiterarbeiten.": "Break finished. You can continue working.",
+      "Fokus": "Focus",
+      "Pause": "Break"
+    }
+  };
+
+  function detectLanguage() {
+    if (state.language === "de") return "de";
+    if (state.language === "en") return "en";
+    const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
+    for (const value of browserLanguages || []) {
+      const language = String(value || "").toLowerCase();
+      if (language.startsWith("de")) return "de";
+      if (language.startsWith("en")) return "en";
+    }
+    return "de";
+  }
+
+  function translate(key) {
+    const language = detectLanguage();
+    return language === "en" ? (translations.en[key] || key) : key;
+  }
+
+  function applyTranslations(root) {
+    const language = detectLanguage();
+    const english = translations.en;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach((node) => {
+      const text = node.textContent.trim();
+      if (!text) return;
+      if (language === "en") {
+        node.textContent = english[text] || text;
+      } else {
+        const germanKey = Object.keys(english).find((key) => english[key] === text);
+        if (germanKey) node.textContent = germanKey;
+      }
+    });
+
+    root.querySelectorAll("[aria-label], [title], [aria-valuetext]").forEach((element) => {
+      ["aria-label", "title", "aria-valuetext"].forEach((attribute) => {
+        const value = element.getAttribute(attribute);
+        if (!value) return;
+        if (language === "en") element.setAttribute(attribute, english[value] || value);
+        else {
+          const germanKey = Object.keys(english).find((key) => english[key] === value);
+          if (germanKey) element.setAttribute(attribute, germanKey);
+        }
+      });
+    });
+  }
+
   // ── Default State ──────────────────────────────────────────────────
   const defaults = {
+    language: "auto",
     profile: null,
     contrast: "normal",
     textSize: 100,
@@ -75,6 +284,7 @@
     highlightSentence: false,
     grayscale: false,
     readingRuler: false,
+    rulerMovement: "snap",
     readingProgress: false,
     readingMagnifier: false,
     speechRate: 1,
@@ -99,6 +309,16 @@
       if (raw) {
         state = { ...defaults, ...JSON.parse(raw) };
         let migrated = false;
+        const storedRulerHeight = Number(state.rulerHeight);
+        if (!Number.isFinite(storedRulerHeight)) {
+          state.rulerHeight = defaults.rulerHeight;
+          migrated = true;
+        } else if (storedRulerHeight < 60 || storedRulerHeight > 240) {
+          // Older versions allowed very thin bands; a nearly invisible band
+          // combined with the focus mask made the page look blank.
+          state.rulerHeight = Math.min(240, Math.max(60, storedRulerHeight));
+          migrated = true;
+        }
         if (state.profile === "adhs" && state.colorTheme === "soft") {
           state.colorTheme = defaults.colorTheme;
           migrated = true;
@@ -124,6 +344,16 @@
             migrated = true;
           }
         }
+        if (state.profile) {
+          const preset = CONFIG[`${state.profile}Preset`];
+          if (preset) {
+            Object.keys(preset).forEach((key) => {
+              state[key] = defaults[key];
+            });
+          }
+          state.profile = null;
+          migrated = true;
+        }
         if (migrated) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         }
@@ -136,13 +366,13 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       if (status) {
-        status.textContent = "Gespeichert";
+        status.textContent = translate("Gespeichert");
         status.classList.remove("error");
         status.classList.add("visible");
       }
     } catch (_) {
       if (status) {
-        status.textContent = "Speichern nicht möglich";
+        status.textContent = translate("Speichern nicht möglich");
         status.classList.add("visible", "error");
       }
     }
@@ -364,13 +594,15 @@ body.a11y-align-center ${EXCLUDE} * {
 /* ── Link highlight ────────────────────────────────────────── */
 html.a11y-link-highlight body${EXCLUDE} a,
 html.a11y-link-highlight body${EXCLUDE} a * {
+  color: #005fcc !important;
+  font-weight: 650 !important;
   text-decoration: underline !important;
-  text-decoration-thickness: 3px !important;
-  text-underline-offset: 4px !important;
-  background-color: rgba(0, 120, 255, 0.12) !important;
-  border-bottom: 3px solid #0078ff !important;
-  padding-bottom: 1px !important;
-  border-radius: 3px !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 2px !important;
+  background-color: transparent !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  border-radius: 0 !important;
 }
 
 /* ── Heading highlight ─────────────────────────────────────── */
@@ -743,6 +975,15 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
           </div>
           <div class="panel-body">
 
+            <label class="select-row language-row" for="language-select">
+              <span>Sprache</span>
+              <select id="language-select" aria-label="Sprache">
+                <option value="auto" ${state.language === "auto" ? "selected" : ""}>Automatisch</option>
+                <option value="de" ${state.language === "de" ? "selected" : ""}>Deutsch</option>
+                <option value="en" ${state.language === "en" ? "selected" : ""}>English</option>
+              </select>
+            </label>
+
             <!-- Tab Navigation -->
             <nav class="tabs" role="tablist" aria-label="Einstellungs-Kategorien">
               <button class="tab active" role="tab" aria-selected="true" aria-controls="tab-profiles" id="btn-profiles">Profile</button>
@@ -824,7 +1065,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
               <details class="profile-disclosure" data-profile-settings="general">
                 <summary>Allgemeine Lesehilfen</summary>
-                <div class="profile-settings-content">
+                <div class="profile-settings-content reading-aids-grid">
               <div class="toggle-row">
                 <span class="toggle-label">Lesefortschritt</span>
                 <button class="toggle" role="switch" aria-checked="${state.readingProgress}" data-toggle="readingProgress" aria-label="Lesefortschritt anzeigen">
@@ -837,6 +1078,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
                   <span class="toggle-thumb"></span>
                 </button>
               </div>
+              <div id="reading-time-row" class="info-row"><span>Geschätzte Lesezeit</span><strong id="reading-time">Wird berechnet</strong></div>
 
               <div class="toggle-row">
                 <span class="toggle-label">Leselineal</span>
@@ -844,10 +1086,20 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
                   <span class="toggle-thumb"></span>
                 </button>
               </div>
+              <label class="select-row" for="ruler-movement">
+                <span>Bewegung der Leseleiste</span>
+                <select id="ruler-movement" data-setting="rulerMovement" aria-label="Bewegung der Leseleiste">
+                  <option value="snap" ${state.rulerMovement === "snap" ? "selected" : ""}>Zeilenweise einrasten</option>
+                  <option value="pointer" ${state.rulerMovement === "pointer" ? "selected" : ""}>Mauszeiger folgen</option>
+                </select>
+              </label>
 
-              <div class="toggle-row">
-                <span class="toggle-label">Links hervorheben</span>
-                <button class="toggle" role="switch" aria-checked="${state.linkHighlight}" data-toggle="linkHighlight" aria-label="Links hervorheben">
+              <div class="toggle-row link-highlight-setting">
+                <span class="toggle-label">
+                  <span>Links hervorheben</span>
+                  <span class="link-highlight-description" id="link-highlight-description">Hebt Links farblich und durch eine stärkere Schrift hervor.</span>
+                </span>
+                <button class="toggle" role="switch" aria-checked="${state.linkHighlight}" data-toggle="linkHighlight" aria-label="Links hervorheben" aria-describedby="link-highlight-description">
                   <span class="toggle-thumb"></span>
                 </button>
               </div>
@@ -884,9 +1136,60 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
                 </div>
               </details>
 
+                <details class="profile-disclosure" data-profile-settings="vision">
+                  <summary>Sehbehinderung</summary>
+                  <div class="profile-settings-content reading-aids-grid">
+                    <label class="range-row" for="vision-text-size">
+                      <span>Schriftgröße <output data-value-for="textSize">${state.textSize}%</output></span>
+                      <input id="vision-text-size" class="range-control" type="range" min="80" max="200" step="5" data-setting="textSize" value="${state.textSize}" aria-label="Schriftgröße für Sehbehinderung">
+                    </label>
+                    <label class="range-row" for="vision-line-height">
+                      <span>Zeilenabstand <output data-value-for="lineHeight">${state.lineHeight}%</output></span>
+                      <input id="vision-line-height" class="range-control" type="range" min="100" max="220" step="5" data-setting="lineHeight" value="${state.lineHeight}" aria-label="Zeilenabstand für Sehbehinderung">
+                    </label>
+                    <label class="range-row" for="vision-letter-spacing">
+                      <span>Buchstabenabstand <output data-value-for="letterSpacing">${state.letterSpacing}%</output></span>
+                      <input id="vision-letter-spacing" class="range-control" type="range" min="100" max="180" step="5" data-setting="letterSpacing" value="${state.letterSpacing}" aria-label="Buchstabenabstand für Sehbehinderung">
+                    </label>
+                    <label class="select-row" for="vision-font">
+                      <span>Leseschrift</span>
+                      <select id="vision-font" data-setting="readingFont" aria-label="Leseschrift für Sehbehinderung">
+                        <option value="system" ${state.readingFont === "system" ? "selected" : ""}>System</option>
+                        <option value="atkinson" ${state.readingFont === "atkinson" ? "selected" : ""}>Atkinson Hyperlegible</option>
+                        <option value="lexend" ${state.readingFont === "lexend" ? "selected" : ""}>Lexend</option>
+                        <option value="opendyslexic" ${state.readingFont === "opendyslexic" ? "selected" : ""}>OpenDyslexic</option>
+                      </select>
+                    </label>
+                    <div class="toggle-row">
+                      <span class="toggle-label">Links hervorheben</span>
+                      <button class="toggle" role="switch" aria-checked="${state.linkHighlight}" data-toggle="linkHighlight" aria-label="Links für Sehbehinderung hervorheben">
+                        <span class="toggle-thumb"></span>
+                      </button>
+                    </div>
+                    <div class="toggle-row">
+                      <span class="toggle-label">Überschriften hervorheben</span>
+                      <button class="toggle" role="switch" aria-checked="${state.headingHighlight}" data-toggle="headingHighlight" aria-label="Überschriften für Sehbehinderung hervorheben">
+                        <span class="toggle-thumb"></span>
+                      </button>
+                    </div>
+                    <div class="toggle-row">
+                      <span class="toggle-label">Lange Textzeilen begrenzen</span>
+                      <button class="toggle" role="switch" aria-checked="${state.constrainLineWidth}" data-toggle="constrainLineWidth" aria-label="Lange Textzeilen für Sehbehinderung begrenzen">
+                        <span class="toggle-thumb"></span>
+                      </button>
+                    </div>
+                    <div class="toggle-row">
+                      <span class="toggle-label">Graustufen</span>
+                      <button class="toggle" role="switch" aria-checked="${state.grayscale}" data-toggle="grayscale" aria-label="Graustufen für Sehbehinderung aktivieren">
+                        <span class="toggle-thumb"></span>
+                      </button>
+                    </div>
+                  </div>
+                </details>
+
               <details class="profile-disclosure" data-profile-settings="dyslexie">
                 <summary>Dyslexie-Einstellungen</summary>
-                <div class="profile-settings-content">
+                <div class="profile-settings-content reading-aids-grid">
                   <label class="select-row" for="dyslexie-font">
                     <span>Leseschrift</span>
                     <select id="dyslexie-font" data-setting="readingFont" aria-label="Dyslexie-Leseschrift">
@@ -931,7 +1234,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
               <details class="profile-disclosure" data-profile-settings="adhs">
                 <summary>ADHS-Modus</summary>
-                <div class="profile-settings-content">
+                <div class="profile-settings-content reading-aids-grid">
                   <div class="section-label">Orientierung</div>
                   <div class="toggle-row">
                     <span class="toggle-label">Fokusmaske</span>
@@ -998,7 +1301,6 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
               </div>
 
               <div class="section-label">Lesezeit und Fokus-Timer</div>
-              <div id="reading-time-row" class="info-row"><span>Geschätzte Lesezeit</span><strong id="reading-time">Wird berechnet</strong></div>
               <div class="toggle-row">
                 <span class="toggle-label">Fokus-Timer einschalten</span>
                 <button class="toggle" role="switch" aria-checked="${state.pomodoroEnabled}" data-toggle="pomodoroEnabled" aria-label="Fokus-Timer einschalten">
@@ -1080,6 +1382,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         <div class="reading-progress-fill" id="reading-progress-fill"></div>
         <span class="reading-progress-label" id="reading-progress-label">Lesefortschritt 0%</span>
       </div>
+      <div id="focus-mask-overlay" class="focus-mask-overlay" aria-hidden="true"></div>
       <div id="reading-ruler" class="reading-ruler" aria-hidden="true"></div>
       <div id="reading-magnifier" class="reading-magnifier" aria-hidden="true">
         <span class="reading-magnifier-title">Ausschnitt unter dem Zeiger · 2×</span>
@@ -1099,11 +1402,26 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
     const readingProgress = $("#reading-progress");
     const readingProgressFill = $("#reading-progress-fill");
     const readingProgressLabel = $("#reading-progress-label");
+    const focusMaskOverlay = $("#focus-mask-overlay");
     const readingRuler = $("#reading-ruler");
     const readingMagnifier = $("#reading-magnifier");
     const readingMagnifierViewport = $("#reading-magnifier-viewport");
     const readingMagnifierContent = $("#reading-magnifier-content");
     const readingTimeValue = $("#reading-time");
+
+    applyTranslations(shadow);
+    host.lang = detectLanguage();
+
+    const languageSelect = $("#language-select");
+    languageSelect?.addEventListener("change", () => {
+      state.language = languageSelect.value;
+      host.lang = detectLanguage();
+      document.documentElement.lang = detectLanguage() === "en" ? "en" : "de";
+      applyTranslations(shadow);
+      updateTimerDisplay();
+      calculateReadingTime();
+      saveState();
+    });
     const readingTimeRow = $("#reading-time-row");
     const timerControls = $("#timer-controls");
     const timerStatus = $("#timer-status");
@@ -1142,7 +1460,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       const source = scope || currentReadingScope || document.querySelector("main, [role='main'], article") || document.body;
       const words = source.textContent.trim().split(/\s+/).filter(Boolean).length;
       const minutes = Math.max(1, Math.ceil(words / 200));
-      readingTimeValue.textContent = `ca. ${minutes} Min.`;
+      readingTimeValue.textContent = detectLanguage() === "en" ? `approx. ${minutes} min` : `ca. ${minutes} Min.`;
     }
 
     function updateReadingTimeScope(target) {
@@ -1226,19 +1544,19 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
     function startSpeech() {
       if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") {
-        speechStatus.textContent = "Vorlesen wird von diesem Browser nicht unterstützt.";
+        speechStatus.textContent = translate("Vorlesen wird von diesem Browser nicht unterstützt.");
         return;
       }
       if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
-        speechStatus.textContent = "Vorlesen fortgesetzt.";
+        speechStatus.textContent = translate("Vorlesen fortgesetzt.");
         return;
       }
       if (window.speechSynthesis.speaking) return;
 
       const source = getSpeechSource();
       if (!source.text.trim()) {
-        speechStatus.textContent = "Kein lesbarer Text gefunden.";
+        speechStatus.textContent = translate("Kein lesbarer Text gefunden.");
         return;
       }
       speechRoot = source.root;
@@ -1251,31 +1569,31 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       }
 
       speechUtterance = new SpeechSynthesisUtterance(source.text);
-      speechUtterance.lang = document.documentElement.lang || "de-DE";
+      speechUtterance.lang = detectLanguage() === "en" ? "en-US" : "de-DE";
       speechUtterance.rate = state.speechRate;
       speechUtterance.onboundary = (event) => highlightSpeechSentence(event.charIndex || 0);
       speechUtterance.onend = () => {
         clearSpeechHighlight();
-        speechStatus.textContent = "Vorlesen beendet.";
+        speechStatus.textContent = translate("Vorlesen beendet.");
       };
       speechUtterance.onerror = () => {
         clearSpeechHighlight();
-        speechStatus.textContent = "Vorlesen konnte nicht gestartet werden.";
+        speechStatus.textContent = translate("Vorlesen konnte nicht gestartet werden.");
       };
       window.speechSynthesis.speak(speechUtterance);
-      speechStatus.textContent = "Vorlesen läuft.";
+      speechStatus.textContent = translate("Vorlesen läuft.");
     }
 
     function pauseSpeech() {
       if (!window.speechSynthesis?.speaking) return;
       window.speechSynthesis.pause();
-      speechStatus.textContent = "Vorlesen pausiert.";
+      speechStatus.textContent = translate("Vorlesen pausiert.");
     }
 
     function stopSpeech() {
       window.speechSynthesis?.cancel();
       clearSpeechHighlight();
-      speechStatus.textContent = "Vorlesen gestoppt.";
+      speechStatus.textContent = translate("Vorlesen gestoppt.");
     }
 
     function formatTimer(seconds) {
@@ -1285,7 +1603,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
     }
 
     function updateTimerDisplay() {
-      timerStatus.textContent = `${formatTimer(timerRemaining)} ${timerPhase}`;
+      timerStatus.textContent = `${formatTimer(timerRemaining)} ${translate(timerPhase)}`;
     }
 
     function playTimerTone() {
@@ -1326,7 +1644,9 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         if (timerRemaining === 0) {
           window.clearInterval(timerInterval);
           timerInterval = null;
-          const message = timerPhase === "Fokus" ? "Fokuszeit beendet. Zeit für eine Pause." : "Pause beendet. Du kannst weiterarbeiten.";
+          const message = timerPhase === "Fokus"
+            ? translate("Fokuszeit beendet. Zeit für eine Pause.")
+            : translate("Pause beendet. Du kannst weiterarbeiten.");
           timerPhase = timerPhase === "Fokus" ? "Pause" : "Fokus";
           showTimerNotice(message);
         }
@@ -1591,17 +1911,30 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
 
     window.addEventListener("a11y-motion-preference-change", updateDynamicReadingAids);
 
+    function clearReadingBand() {
+      readingRulerHeight = 0;
+      readingRuler.classList.remove("visible");
+      readingRuler.style.removeProperty("height");
+      readingRuler.style.removeProperty("top");
+      focusMaskOverlay.classList.remove("visible");
+      focusMaskOverlay.style.removeProperty("--focus-mask-top");
+      focusMaskOverlay.style.removeProperty("--focus-mask-bottom");
+    }
+
     function updateReadingAids() {
+      const rulerActive = !!state.readingRuler || !!state.focusMode;
+      const hasBand = rulerActive && Number.isFinite(readingRulerHeight) && readingRulerHeight > 0;
       readingProgress.classList.toggle("visible", !!state.readingProgress);
-      readingRuler.classList.toggle("visible", !!state.readingRuler || !!state.focusMode);
-      readingRuler.classList.toggle("focus-mask", !!state.focusMode);
+      readingRuler.classList.toggle("visible", hasBand);
+      focusMaskOverlay.classList.toggle("visible", !!state.focusMode && hasBand);
+      if (!hasBand) clearReadingBand();
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const progress = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
       const percent = Math.round(progress * 100);
       readingProgressFill.style.width = `${percent}%`;
       readingProgress.setAttribute("aria-valuenow", String(percent));
-      readingProgress.setAttribute("aria-valuetext", `${percent} Prozent`);
-      readingProgressLabel.textContent = `Lesefortschritt ${percent}%`;
+      readingProgress.setAttribute("aria-valuetext", detectLanguage() === "en" ? `${percent} percent` : `${percent} Prozent`);
+      readingProgressLabel.textContent = detectLanguage() === "en" ? `Reading progress ${percent}%` : `Lesefortschritt ${percent}%`;
       readingMagnifier.classList.toggle("visible", !!state.readingMagnifier && !!magnifierClone);
       readingMagnifier.setAttribute("aria-hidden", String(!state.readingMagnifier));
     }
@@ -1653,15 +1986,42 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
     }
 
     function positionReadingRuler(x, y) {
+      if (!state.readingRuler && !state.focusMode) {
+        clearReadingBand();
+        return;
+      }
+
       const line = getReadingLineRect(x, y);
       if (!line) return;
 
-      readingRulerHeight = line.height * state.rulerHeight / 100;
-      readingRulerY = line.top + line.height / 2;
+      const viewportHeight = window.innerHeight;
+      const bandHeight = (Number(line.height) || 0) * (Number(state.rulerHeight) || 0) / 100;
+      if (!viewportHeight || !Number.isFinite(bandHeight) || bandHeight <= 0) {
+        clearReadingBand();
+        return;
+      }
+
+      // Never let the band grow beyond the viewport, and keep a visible band
+      // when the focus mask is on. Otherwise the mask would dim the whole page.
+      const minimumBand = state.focusMode ? 16 : 1;
+      readingRulerHeight = Math.min(Math.max(bandHeight, minimumBand), viewportHeight);
+      const centerY = state.rulerMovement === "snap" ? line.top + line.height / 2 : y;
+      readingRulerY = centerY;
       readingRulerX = x;
-      const top = line.top + (line.height - readingRulerHeight) / 2;
+      const top = centerY - readingRulerHeight / 2;
+      const boundedTop = Math.max(0, Math.min(viewportHeight - readingRulerHeight, top));
       readingRuler.style.height = `${readingRulerHeight}px`;
-      readingRuler.style.top = `${Math.max(0, Math.min(window.innerHeight - readingRulerHeight, top))}px`;
+      readingRuler.style.top = `${boundedTop}px`;
+      readingRuler.classList.toggle("visible", !!state.readingRuler || !!state.focusMode);
+      if (state.focusMode) {
+        focusMaskOverlay.style.setProperty("--focus-mask-top", `${boundedTop}px`);
+        focusMaskOverlay.style.setProperty("--focus-mask-bottom", `${boundedTop + readingRulerHeight}px`);
+        focusMaskOverlay.classList.add("visible");
+      } else {
+        focusMaskOverlay.classList.remove("visible");
+        focusMaskOverlay.style.removeProperty("--focus-mask-top");
+        focusMaskOverlay.style.removeProperty("--focus-mask-bottom");
+      }
     }
 
     function stepReadingRuler(event) {
@@ -1739,7 +2099,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       readingMagnifier.classList.add("visible");
     }
 
-    document.addEventListener("mousemove", (event) => {
+    const handlePointerPosition = (event) => {
       pendingPointer = { x: event.clientX, y: event.clientY, target: event.target };
       if (pointerFrame) return;
       pointerFrame = window.requestAnimationFrame(() => {
@@ -1752,7 +2112,9 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         updateReadingTimeScope(pointer.target);
         if (state.readingMagnifier) updateReadingMagnifier(pointer.x, pointer.y);
       });
-    }, { passive: true });
+    };
+    document.addEventListener("pointermove", handlePointerPosition, { passive: true });
+    document.addEventListener("pointerdown", handlePointerPosition, { passive: true });
     document.addEventListener("focusin", (e) => {
       if (!(e.target instanceof Element)) return;
       const bounds = e.target.getBoundingClientRect();
@@ -1784,7 +2146,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       panelOpen = true;
       panel.classList.remove("hidden");
       trigger.setAttribute("aria-expanded", "true");
-      trigger.setAttribute("aria-label", "Barrierefreiheits-Einstellungen schließen");
+      trigger.setAttribute("aria-label", translate("Barrierefreiheits-Einstellungen schließen"));
       panel.focus();
     }
 
@@ -1792,7 +2154,7 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       panelOpen = false;
       panel.classList.add("hidden");
       trigger.setAttribute("aria-expanded", "false");
-      trigger.setAttribute("aria-label", "Barrierefreiheits-Einstellungen öffnen");
+      trigger.setAttribute("aria-label", translate("Barrierefreiheits-Einstellungen öffnen"));
       trigger.focus();
     }
 
@@ -1894,13 +2256,25 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
           }
           state.profile = state.profile === p ? null : p;
         }
+        let openedProfileSettings = null;
         shadow.querySelectorAll("[data-profile-settings]").forEach((details) => {
           details.open = details.dataset.profileSettings === p;
+          if (details.open) openedProfileSettings = details;
         });
         syncUI();
         applyGlobalStyles();
         saveState();
-        if (preset) switchTab($("#btn-reading"));
+        if (preset) {
+          switchTab($("#btn-reading"));
+          if (openedProfileSettings) {
+            window.requestAnimationFrame(() => {
+              openedProfileSettings.scrollIntoView({
+                block: "nearest",
+                behavior: shouldReduceMotion() ? "auto" : "smooth",
+              });
+            });
+          }
+        }
       });
     });
 
@@ -1913,6 +2287,10 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       timerRemaining = state.pomodoroMinutes * 60;
       timerNotice.hidden = true;
       syncUI();
+      languageSelect.value = state.language;
+      host.lang = detectLanguage();
+      applyTranslations(shadow);
+      updateTimerDisplay();
       applyGlobalStyles();
       saveState();
     });
@@ -2147,6 +2525,25 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       .reading-magnifier.visible {
         visibility: visible;
       }
+      .focus-mask-overlay {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.58) 0,
+          rgba(0, 0, 0, 0.58) var(--focus-mask-top, 0px),
+          transparent var(--focus-mask-top, 0px),
+          transparent var(--focus-mask-bottom, 0px),
+          rgba(0, 0, 0, 0.58) var(--focus-mask-bottom, 0px),
+          rgba(0, 0, 0, 0.58) 100%
+        );
+        visibility: hidden;
+        pointer-events: none;
+        z-index: 999996;
+      }
+      .focus-mask-overlay.visible {
+        visibility: visible;
+      }
       .reading-ruler {
         position: fixed;
         left: 0;
@@ -2156,9 +2553,6 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         visibility: hidden;
         pointer-events: none;
         z-index: 999997;
-      }
-      .reading-ruler.focus-mask {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.58);
       }
       .reading-magnifier {
         position: fixed;
@@ -2718,6 +3112,213 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
       .profile-settings-content {
         padding: 0 12px 12px;
       }
+      .reading-aids-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 12px;
+        align-items: start;
+      }
+      .reading-aids-grid > .section-label {
+        margin: 8px 0 0;
+      }
+      .reading-aids-grid > .toggle-row,
+      .reading-aids-grid > .select-row {
+        min-width: 0;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 10px;
+        border: 1px solid #e3e8ef;
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+      .reading-aids-grid > .select-row {
+        grid-column: 1 / -1;
+      }
+      .reading-aids-grid > .toggle-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-content: space-between;
+        gap: 10px;
+        min-height: 76px;
+      }
+      .reading-aids-grid > .toggle-row .toggle {
+        justify-self: end;
+      }
+      .reading-aids-grid > .link-highlight-setting {
+        grid-column: 1 / -1;
+      }
+      .reading-aids-grid .link-highlight-setting .toggle-label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .reading-aids-grid .toggle-label {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        overflow-wrap: normal;
+        hyphens: auto;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      .link-highlight-description {
+        color: #526173;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.35;
+      }
+      .reading-aids-grid > .section-label,
+      .reading-aids-grid > .range-row,
+      .reading-aids-grid > .action-row,
+      .reading-aids-grid > .inline-status,
+      .reading-aids-grid > .info-row,
+      .reading-aids-grid > .page-outline,
+      .reading-aids-grid > #timer-controls {
+        grid-column: 1 / -1;
+      }
+      .reading-aids-grid > .select-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+      }
+      .reading-aids-grid > .select-row span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .reading-aids-grid > .select-row select {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :host {
+          color: #f1f5f9;
+          color-scheme: dark;
+        }
+        .panel {
+          background: #242424;
+          border-color: #4a4a4a;
+          color: #f1f5f9;
+        }
+        .panel-header {
+          background: #303030;
+          border-bottom-color: #4a4a4a;
+        }
+        .panel-title,
+        .stepper-value {
+          color: #f1f5f9;
+        }
+        .icon-btn {
+          color: #cbd5e1;
+        }
+        .icon-btn:hover,
+        .tabs,
+        .profile-btn,
+        .contrast-btn,
+        .stepper-btn,
+        .align-btn,
+        .reading-aids-grid > .toggle-row,
+        .reading-aids-grid > .select-row {
+        background: #383838;
+        }
+        .icon-btn:hover {
+        background: #4a4a4a;
+        }
+        .tabs {
+        background: #181818;
+        }
+        .tab,
+        .section-label,
+        .profile-name,
+        .contrast-btn,
+        .stepper-btn,
+        .align-btn,
+        .toggle-label,
+        .range-row,
+        .select-row,
+        .info-row,
+        .timer-settings label,
+        .inline-status {
+          color: #cbd5e1;
+        }
+        .tab:hover {
+          color: #f1f5f9;
+        }
+        .tab.active,
+        .profile-btn.active,
+        .contrast-btn.active,
+        .align-btn.active {
+          background: #505050;
+          color: #fff;
+        }
+        .profile-btn,
+        .contrast-btn,
+        .stepper-btn,
+        .align-btn {
+          border-color: #5a5a5a;
+        }
+        .profile-btn:hover,
+        .stepper-btn:hover {
+          background: #4a4a4a;
+        }
+        .toggle-row {
+          border-bottom-color: #475569;
+        }
+        .stepper-btn.reset {
+          background: transparent;
+        }
+        .stepper-btn.reset:hover {
+          background: #450a0a;
+        }
+        .select-row select,
+        .timer-settings input {
+          background: #1c1c1c;
+          border-color: #5a5a5a;
+          color: #f1f5f9;
+        }
+        .action-btn,
+        .reset-all-btn {
+          background: #242424;
+          color: #e0e0e0;
+        }
+        .action-btn:hover,
+        .reset-all-btn:hover {
+          background: #4a4a4a;
+          color: #fff;
+        }
+        .calm-notice {
+          background: #333;
+          color: #f0f0f0;
+        }
+        .calm-notice button,
+        .page-outline a {
+          color: #e0e0e0;
+        }
+        .calm-notice.assertive {
+          background: #450a0a;
+        }
+        .page-outline {
+          border-left-color: #5a5a5a;
+        }
+        .profile-disclosure {
+          background: #292929;
+          border-color: #5a5a5a;
+        }
+        .profile-disclosure summary {
+          color: #f1f5f9;
+        }
+        .reading-aids-grid > .toggle-row,
+        .reading-aids-grid > .select-row {
+          border-color: #4a4a4a;
+        }
+        .link-highlight-description {
+          color: #bdbdbd;
+        }
+      }
 
       @media (max-width: 420px) {
         .profile-grid,
@@ -2729,6 +3330,11 @@ body.a11y-collapse-long ${EXCLUDE} p.a11y-collapsible:focus-visible {
         }
         .panel-header {
           padding: 12px;
+        }
+      }
+      @media (max-width: 360px) {
+        .reading-aids-grid {
+          grid-template-columns: minmax(0, 1fr);
         }
       }
     `;
